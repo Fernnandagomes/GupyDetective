@@ -1,7 +1,7 @@
 # Gupy Detector
 
 Ferramenta que monitora vagas publicadas na Gupy e avisa por e-mail. Feita porque acompanhar manualmente o portal de vagas todo dia é chato e fácil de esquecer.
-Link para cadastro: https://gupydetective-search.streamlit.app/
+<br> <br>  Link para cadastro: https://gupydetective-search.streamlit.app/
 
 ## Como funciona
 
