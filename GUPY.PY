@@ -1,9 +1,7 @@
 import requests
 import streamlit as st
+import os 
 
-# ==========================================
-# 1. CONFIGURAÇÃO DA PÁGINA
-# ==========================================
 st.set_page_config(
     page_title="GUPY DETECTOR",
     page_icon="🔍",
@@ -11,19 +9,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ==========================================
-# 2. CONFIGURAÇÕES & WEBHOOK
-# ==========================================
-# Substitua pela URL gerada no gatilho "When an HTTP request is received" do Power Automate
-WEBHOOK_URL = ""
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-# ==========================================
-# 3. ESTILIZAÇÃO CSS (DARK MODE)
-# ==========================================
 st.markdown(
     """
     <style>
-    /* Fundo da página com degradê escuro (navy/slate) + glow sutil */
     html, body, [class*="css"] {
         font-size: 19px !important;
     }
@@ -37,7 +27,6 @@ st.markdown(
         font-size: 19px;
     }
 
-    /* Cabeçalho / hero */
     .hero-wrap {
         text-align: center;
         margin-bottom: 22px;
@@ -73,7 +62,6 @@ st.markdown(
         margin-bottom: 4px;
     }
 
-    /* Chips de destaque (Diário, Sem spam, 60 dias) */
     .chip-row {
         display: flex;
         justify-content: center;
@@ -90,7 +78,6 @@ st.markdown(
         border-radius: 10px;
     }
 
-    /* Container do Formulário estilo Glassmorphism escuro */
     div[data-testid="stForm"] {
         background: rgba(255, 255, 255, 0.045);
         backdrop-filter: blur(14px);
@@ -101,51 +88,68 @@ st.markdown(
         box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.55);
     }
 
-    /* Rótulos dos campos (Labels) */
     div[data-testid="stForm"] label p {
         color: #D1D5DB !important;
         font-weight: 600 !important;
-        font-size: 15.5px !important;
+        font-size: 17px !important;
         text-transform: uppercase;
         letter-spacing: 0.4px;
     }
 
-    /* Estilização das caixas de entrada de texto */
+    /* Borda e fundo das caixas de texto e seleções */
     div[data-baseweb="input"] > div,
     div[data-baseweb="select"] > div {
-        background-color: rgba(255, 255, 255, 0.055) !important;
-        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        background-color: #1F2937 !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
         border-radius: 10px !important;
-        color: #F9FAFB !important;
-        transition: border 0.2s ease;
-        min-height: 48px !important;
+        min-height: 50px !important;
     }
 
-    div[data-baseweb="input"] > div:focus-within,
-    div[data-baseweb="select"] > div:focus-within {
-        border: 1px solid #3B82F6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18) !important;
-    }
-
+    /* Cor do cursor (piscante) e do texto digitado */
     div[data-baseweb="input"] input,
-    div[data-baseweb="select"] div {
-        color: #F9FAFB !important;
-        font-size: 16px !important;
+    div[data-baseweb="select"] input {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        caret-color: #FFFFFF !important;
+        font-size: 18px !important;
     }
 
-    ::placeholder {
-        color: #6B7280 !important;
-        opacity: 1 !important;
-        font-size: 16px !important;
+    /* Cor do texto do Selectbox e da Seta */
+    div[data-baseweb="select"] * {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        fill: #FFFFFF !important;
     }
 
-    /* Botão de envio (Cadastre-se) — texto garantido branco em qualquer estado */
+    /* Opções do Menu Dropdown */
+    ul[role="listbox"],
+    div[data-baseweb="menu"] {
+        background-color: #1F2937 !important;
+    }
+
+    li[role="option"],
+    div[role="option"] {
+        color: #FFFFFF !important;
+        background-color: #1F2937 !important;
+    }
+
+    li[role="option"]:hover,
+    div[role="option"]:hover {
+        background-color: #374151 !important;
+    }
+
+    /* Preenchimento automático do navegador */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #FFFFFF !important;
+        -webkit-box-shadow: 0 0 0px 1000px #1F2937 inset !important;
+        caret-color: #FFFFFF !important;
+    }
+
+    /* Botão de Envio */
     div[data-testid="stFormSubmitButton"] button,
-    div[data-testid="stFormSubmitButton"] button:visited,
-    div[data-testid="stFormSubmitButton"] button *,
-    div[data-testid="stFormSubmitButton"] button p,
-    div[data-testid="stFormSubmitButton"] button span,
-    div[data-testid="stFormSubmitButton"] button div {
+    div[data-testid="stFormSubmitButton"] button * {
         color: #FFFFFF !important;
         -webkit-text-fill-color: #FFFFFF !important;
     }
@@ -154,36 +158,20 @@ st.markdown(
         width: 100%;
         background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 60%, #1E3A8A 100%) !important;
         border: none !important;
-        padding: 15px !important;
+        padding: 16px !important;
         border-radius: 10px !important;
         font-weight: 800 !important;
-        font-size: 18px !important;
+        font-size: 20px !important;
         letter-spacing: 0.5px;
-        transition: all 0.25s ease;
         margin-top: 6px;
         box-shadow: 0 4px 18px rgba(37, 99, 235, 0.35);
-    }
-
-    div[data-testid="stFormSubmitButton"] button p {
-        font-size: 18px !important;
-        font-weight: 800 !important;
     }
 
     div[data-testid="stFormSubmitButton"] button:hover {
         background: linear-gradient(135deg, #3B82F6 0%, #2563EB 60%, #1E40AF 100%) !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 22px rgba(37, 99, 235, 0.5);
     }
 
-    div[data-testid="stFormSubmitButton"] button:active,
-    div[data-testid="stFormSubmitButton"] button:focus,
-    div[data-testid="stFormSubmitButton"] button:focus:not(:active) {
-        color: #FFFFFF !important;
-        border: none !important;
-        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.35) !important;
-    }
-
-    /* Nota explicativa fixa (não recolhível) */
     .info-card {
         background: rgba(255, 255, 255, 0.035);
         border: 1px solid rgba(255, 255, 255, 0.09);
@@ -197,24 +185,14 @@ st.markdown(
         color: #F9FAFB;
         margin-top: 0;
         margin-bottom: 10px;
-        font-size: 18px;
+        font-size: 21px;
     }
     .info-card p, .info-card li {
-        font-size: 15.5px;
+        font-size: 17.5px;
         line-height: 1.6;
         color: #B9C0CC;
     }
 
-    /* Mensagens de erro/sucesso do formulário */
-    div[data-testid="stAlert"] p {
-        font-size: 15.5px !important;
-    }
-    .info-card hr {
-        border-color: rgba(255,255,255,0.08);
-        margin: 14px 0;
-    }
-
-    /* Divider decorativo */
     .divider-glow {
         height: 1px;
         background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent);
@@ -227,9 +205,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ==========================================
-# 4. CABEÇALHO / HERO
-# ==========================================
 st.markdown(
     """
     <div class="hero-wrap">
@@ -246,22 +221,21 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ==========================================
-# 5. CARD DO FORMULÁRIO DE CADASTRO
-# ==========================================
 with st.form("form_gupy_detector", clear_on_submit=True):
-    email = st.text_input("Email", placeholder="username@gmail.com")
-    cargo = st.text_input("Vaga", placeholder="Engenheiro de Software")
+    email = st.text_input("Email")
+    cargo = st.text_input("Vaga")
 
     col1, col2 = st.columns(2)
     with col1:
-        modelo = st.selectbox(
+        modelo_opcao = st.selectbox(
             "Modelo (Opcional)",
-            ["", "remoto", "presencial", "hibrido"],
-            format_func=lambda x: "presencial, remoto, hibrido" if x == "" else x,
+            ["Selecione...", "remoto", "presencial", "hibrido"],
+            index=0,
         )
+        modelo = "" if modelo_opcao == "Selecione..." else modelo_opcao
+
     with col2:
-        cidade = st.text_input("Cidade (Opcional)", placeholder="São Paulo")
+        cidade = st.text_input("Cidade (Opcional)")
 
     submitted = st.form_submit_button("Cadastre-se 🚀")
 
@@ -281,15 +255,10 @@ with st.form("form_gupy_detector", clear_on_submit=True):
                 if response.status_code in [200, 202]:
                     st.success("Cadastro realizado com sucesso!")
                 else:
-                    st.error(
-                        "Erro ao enviar cadastro. Verifique a URL do Webhook."
-                    )
+                    st.error("Erro ao enviar cadastro. Verifique a URL do Webhook.")
             except Exception:
                 st.error("Falha ao conectar com o serviço de cadastro.")
 
-# ==========================================
-# 6. NOTA EXPLICATIVA & DICAS (FIXA, SEMPRE VISÍVEL)
-# ==========================================
 st.markdown('<div class="divider-glow"></div>', unsafe_allow_html=True)
 
 st.markdown(
@@ -298,15 +267,13 @@ st.markdown(
         <h4>ℹ️ Como funciona o Gupy Detector</h4>
         <p>Cadastre seu e-mail e preferências para receber diariamente (às 8h) um resumo consolidado
         com novas vagas publicadas nos últimos 60 dias. Sem e-mails repetidos e sem spam!</p>
-        <hr>
+        <hr style="border-color: rgba(255,255,255,0.08); margin: 14px 0;">
         <h4>📌 Dicas para um bom cadastro</h4>
         <ul>
-            <li><b>Vaga (Cargo):</b> digite termos genéricos ou específicos utilizados pelas empresas
-            <i>(ex: Analista de Dados, Desenvolvedor Python, Gerente de Projetos)</i>.</li>
-            <li><b>Cidade / Modelo:</b> deixe o campo de cidade em branco caso seu foco seja exclusivamente
+            <li><b>Vaga (Cargo):</b> digite termos genéricos ou específicos utilizados pelas empresas.</li>
+            <li><b>Cidade / Modelo:</b> deixe o campo em branco caso seu foco seja exclusivamente
             <b>Remoto</b> ou se quiser buscar vagas em todo o Brasil.</li>
-            <li><b>E-mail:</b> certifique-se de cadastrar um e-mail válido que você consulte diariamente
-            <i>(confira também a caixa de Spam/Lixo Eletrônico no primeiro envio)</i>.</li>
+            <li><b>E-mail:</b> certifique-se de cadastrar um e-mail válido que você consulte diariamente.</li>
         </ul>
     </div>
     """,
