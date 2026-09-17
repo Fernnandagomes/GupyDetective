@@ -16,6 +16,8 @@ Ferramenta que monitora vagas publicadas na Gupy e avisa por e-mail. Feita porqu
 - **Automação:** Power Automate (dois fluxos — recebimento do cadastro e envio diário)
 - **Armazenamento:** planilha (Excel Online)
 - **Fonte de dados:** API da Gupy
+  
+<img width="1429" height="858" alt="image" src="https://github.com/user-attachments/assets/f8c40b91-2167-462f-a466-9f16aab7ddbb" />
 
 ## Parâmetros da API da Gupy usados
 
@@ -48,3 +50,5 @@ Antes de rodar, cole a URL do webhook do Power Automate na variável `WEBHOOK_UR
 - Deduplicação mais robusta de vagas já enviadas
 - Página para a pessoa cancelar o próprio cadastro
 - Testar filtro por múltiplos cargos por pessoa
+
+#automation #rpa #dataengineering #powerautomate #python
