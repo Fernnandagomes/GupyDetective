@@ -26,18 +26,7 @@ jobName
 city
 state
 workplaceType   (ex: remote)
-limit / offset  (paginação)
 ```
-Importante: são no singular e sem colchetes — diferente da URL de busca visual do site.
-
-## Rodando localmente
-
-```bash
-pip install streamlit requests
-streamlit run gupy_detector.py
-```
-
-Antes de rodar, cole a URL do webhook do Power Automate na variável `WEBHOOK_URL` no início do arquivo.
 
 ## Limitações atuais
 
